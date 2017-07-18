@@ -5,7 +5,7 @@ if [ -z "$1" ] ; then
         echo "example:"
         echo -e "$0 --all                \t# will cleanup all database "
         echo -e "$0 --list products.txt \t# will take the product id from the eg. products.txt and cleanup all related data in database"
-        echo -e "\t\t\t\t\t# (if second argument not given, it will search for product.list in current folder)"
+        echo -e "\t\t\t\t\t\t# (if second argument not given, it will search for product.list in current folder)"
         echo -e "$0 DMN-COM               \t# will remove product DMN-COM and all related data in database"
         exit 1
 fi
@@ -70,7 +70,7 @@ BEGIN
 	DELETE FROM shop_item_shop_item_category WHERE fk_shop_item_id IN (SELECT shopitemid FROM _shopitems);
 	DELETE FROM shop_item_property WHERE fk_shop_item_id IN (SELECT shopitemid FROM _shopitems);
 	
-	DELETE FROM FROM shop_item WHERE fk_item_id = _product_id;
+	DELETE FROM shop_item WHERE fk_item_id = _product_id;
 	
 
 	RETURN 'Product (' || $1 || ') is removed from AtomiaBilling!';
@@ -104,8 +104,8 @@ exit 1
 
 function removeall {
 psql -X -U atomia -c "select * from item;" --single-transaction --set AUTOCOMMIT=off --set ON_ERROR_STOP=on --no-align -t --field-separator ' ' --quiet -d atomiabilling | \
-while read name; do
-	remove $name
+while read item; do
+	remove $item
 done
 exit 1
 }
