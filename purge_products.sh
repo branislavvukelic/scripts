@@ -72,7 +72,7 @@ BEGIN
 	
 	DELETE FROM shop_item WHERE fk_item_id = _product_id;
 	
-	DELETE FROM item WHERE article_number = _product_id;
+	DELETE FROM item WHERE id = _product_id;
 	
 
 	RETURN 'Product (' || $1 || ') is removed from AtomiaBilling!';
