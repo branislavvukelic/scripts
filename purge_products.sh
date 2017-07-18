@@ -3,10 +3,11 @@
 if [ -z "$1" ] ; then
         echo "usage: $0 article-number|--all|--list"
         echo "example:"
-        echo -e "$0 --all                \t# will cleanup all database "
+        echo -e "$0 --all \t\t\t\t# will cleanup all database "
         echo -e "$0 --list products.txt \t# will take the product id from the eg. products.txt and cleanup all related data in database"
         echo -e "\t\t\t\t\t\t# (if second argument not given, it will search for product.list in current folder)"
-        echo -e "$0 DMN-COM               \t# will remove product DMN-COM and all related data in database"
+        echo -e "$0 --mask DOC \t\t\t# will take the part of product id from the input and remove all products containing that string in Article number field"
+        echo -e "$0 DMN-COM \t\t\t\t# will remove product DMN-COM and all related data in database"
         exit 1
 fi
 
@@ -105,18 +106,30 @@ exit 1
 }
 
 function removeall {
-psql -X -U atomia -c "select * from item;" --single-transaction --set AUTOCOMMIT=off --set ON_ERROR_STOP=on --no-align -t --field-separator ' ' --quiet -d atomiabilling | \
+psql -X -U atomia -c "select article_number from item;" --single-transaction --set AUTOCOMMIT=off --set ON_ERROR_STOP=on --no-align -t --field-separator ' ' --quiet -d atomiabilling | \
 while read item; do
 	remove $item
 done
 exit 1
 }
 
+function removemask {
+ITEM_ID=$1
+psql -X -U atomia -c "select article_number from item WHERE article_number LIKE '%$ITEM_ID%';" --single-transaction --set AUTOCOMMIT=off --set ON_ERROR_STOP=on --no-align -t --field-separator ' ' --quiet -d atomiabilling | \
+while read item; do
+        remove $item
+done
+exit 1
+}
+
+
 while [ "$1" != "" ]; do
     case $1 in
         -a | --all )            removeall
                                 ;;
         -l | --list )           removefromlist
+                                ;;
+        -m | --mask )           removemask $2
                                 ;;
         * )                     remove $1
                                 exit 1
