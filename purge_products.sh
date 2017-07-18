@@ -3,11 +3,11 @@
 if [ -z "$1" ] ; then
         echo "usage: $0 article-number|--all|--list"
         echo "example:"
-        echo -e "$0 --all \t\t\t\t# will cleanup all database "
+        echo -e "$0 --all \t\t\t# will cleanup all database "
         echo -e "$0 --list products.txt \t# will take the product id from the eg. products.txt and cleanup all related data in database"
         echo -e "\t\t\t\t\t\t# (if second argument not given, it will search for product.list in current folder)"
-        echo -e "$0 --mask DOC \t\t\t# will take the part of product id from the input and remove all products containing that string in Article number field"
-        echo -e "$0 DMN-COM \t\t\t\t# will remove product DMN-COM and all related data in database"
+        echo -e "$0 --mask DOC \t\t\t# will take the part of product id from the input and remove all products containing 'DOC' string in Article number field"
+        echo -e "$0 DMN-COM \t\t\t# will remove product DMN-COM and all related data in database"
         exit 1
 fi
 
