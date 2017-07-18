@@ -22,7 +22,7 @@ ITEM_ID=
 
 ### Create Function AtomiaBilling
 psql atomiabilling $DBUSER << 'EOF'
-CREATE OR REPLACE FUNCTION "public"."purgeproductdata"(int4)
+CREATE OR REPLACE FUNCTION "public"."purgeproductdata"(VARCHAR)
   RETURNS "pg_catalog"."varchar" AS $BODY$
 DECLARE _product_id UUID;
 BEGIN
@@ -72,13 +72,15 @@ BEGIN
 	
 	DELETE FROM shop_item WHERE fk_item_id = _product_id;
 	
+	DELETE FROM item WHERE article_number = _product_id;
+	
 
 	RETURN 'Product (' || $1 || ') is removed from AtomiaBilling!';
 END
 $BODY$
   LANGUAGE 'plpgsql' VOLATILE COST 100
 ;
-ALTER FUNCTION "public"."purgeproductdata"(int4) OWNER TO "atomia";
+ALTER FUNCTION "public"."purgeproductdata"(VARCHAR) OWNER TO "atomia";
 EOF
 
 ###### EXECUTE ######
