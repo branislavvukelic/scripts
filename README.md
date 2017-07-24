@@ -91,7 +91,7 @@ initiate replication after login to primary mongodb node (mongo0)::
 ```sh
 $ mongo
 > rs.initiate()
-> rs.add("mongo2.domain.tld")
+> rs.add("mongo1.domain.tld")
 > rs.status()
 ```
 ensure you have user with admin rights (you can create one with):: 
@@ -118,6 +118,7 @@ $ mongo -u admin -p admin --authenticationDatabase admin
 > rs.status()
 ```
 
+##### Get script with
 wget https://raw.githubusercontent.com/branislavvukelic/scripts/master/ail.sh && chmod +x ail.sh
 
 ##### Execution
