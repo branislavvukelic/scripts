@@ -1,6 +1,8 @@
 #!/bin/bash
 ## Author: branislav@atomia.com
-##
+#
+# Prerequisites: Replicated mongodb setup
+#
 
 if [ -z "$1" ] ; then
         echo "usage: $0 --backup|--restore"
@@ -15,10 +17,10 @@ fi
 DIR=`date +%Y-%m-%d_%H` # keep it in this format to avoid folder mess
 # change variables according to your needs
 # ===============
-DEST=/db_backup
-DB_HOST=127.0.0.1
-USER=atomia
-PASS=atomia
+DEST=/db_backup      # location where we want to store backups
+DB_HOST=127.0.0.1    # db host we use to pull backups, if we use script on dedicated backup host we put ip of some machine in the cluster
+USER=atomia          # user with backup and restore privileges
+PASS=atomia          # password for that user
 # ===============
 DB_PRIMARY=""
 
