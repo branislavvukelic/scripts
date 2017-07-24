@@ -13,10 +13,13 @@ if [ -z "$1" ] ; then
 fi
 
 DIR=`date +%Y-%m-%d_%H` # keep it in this format to avoid folder mess
+# change variables according to your needs
+# ===============
 DEST=/db_backup
 DB_HOST=127.0.0.1
 USER=atomia
 PASS=atomia
+# ===============
 DB_PRIMARY=""
 
 mongostatus=`mktemp`
@@ -63,7 +66,7 @@ fi
 
 function status {
 echo "----- MONGODB STATUS -----"
-# backup mongodb with oplog
+# get mongo status
 jq '.members[] | .stateStr + ": " + .name ' mongostatus
 }
 
