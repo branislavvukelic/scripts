@@ -19,14 +19,13 @@ DIR=`date +%Y-%m-%d_%H` # keep it in this format to avoid folder mess
 # ===============
 DEST=/db_backup      # location where we want to store backups
 DB_HOST=127.0.0.1    # db host we use to pull backups, if we use script on dedicated backup host we put ip of some machine in the cluster
-USER=atomia          # user with backup and restore privileges
-PASS=atomia          # password for that user
+USER=admin           # user with backup and restore privileges
+PASS=admin           # password for that user
 # ===============
-DB_PRIMARY=""
 
-mongostatus=`mktemp`
+MONGOSTATUS=`mktemp`
 # get current mongodb status
-mongo -h $DB_HOST -u $USER -p $PASS --quiet --eval "JSON.stringify(rs.status())" > $mongostatus
+mongo --host $DB_HOST -u $USER -p $PASS --authenticationDatabase admin --quiet --eval "JSON.stringify(rs.status())" > $MONGOSTATUS
 
 # install jq package if it doesn't exist
 if [ $(dpkg-query -W -f='${Status}' jq 2>/dev/null | grep -c "ok installed") -eq 0 ];
@@ -53,10 +52,10 @@ else
     RESTOREDIR=$DEST/$1
 fi
 
-echo "----- RESTORE MONGODB from $RESTOREDIR backup -----"
-
 # we parse primary node address from mongostatus
-jq '.members[] | select(.stateStr == "PRIMARY") | .name' mongostatus | sed 's/"//g' | cut -d \: -f1 > $DB_PRIMARY
+DB_PRIMARY=`jq '.members[] | select(.stateStr == "PRIMARY") | .name' $MONGOSTATUS | sed 's/"//g' | cut -d \: -f1`
+
+echo "----- RESTORE MONGODB from $RESTOREDIR backup to $DB_PRIMARY -----"
 
 # check if restore location exists and restore mongodb with oplog
 if [[ ! -e $RESTOREDIR ]]; then
@@ -69,7 +68,7 @@ fi
 function status {
 echo "----- MONGODB STATUS -----"
 # get mongo status
-jq '.members[] | .stateStr + ": " + .name ' mongostatus
+jq '.members[] | .stateStr + ": " + .name ' $MONGOSTATUS
 }
 
 while [ "$1" != "" ]; do
@@ -81,6 +80,7 @@ while [ "$1" != "" ]; do
         * )                     status
                                 exit 1
     esac
+shift
 done
 
-rm -f "$mongostatus"
+rm -f "$MONGOSTATUS"
