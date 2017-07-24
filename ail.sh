@@ -21,7 +21,13 @@ DB_PRIMARY=""
 
 mongostatus=`mktemp`
 # get current mongodb status
-mongo --quiet --eval "JSON.stringify(rs.status())" > $mongostatus
+mongo -h $DB_HOST -u $USER -p $PASS --quiet --eval "JSON.stringify(rs.status())" > $mongostatus
+
+# install jq package if it doesn't exist
+if [ $(dpkg-query -W -f='${Status}' jq 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+  apt-get install -y jq;
+fi
 
 function backup {
 echo "----- BACKUP MONGODB from $DB_HOST -----"
