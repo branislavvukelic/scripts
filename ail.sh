@@ -12,7 +12,7 @@ if [ -z "$1" ] ; then
         exit 1
 fi
 
-DIR=`date +%Y-%m-%d_%H`
+DIR=`date +%Y-%m-%d_%H` # keep it in this format to avoid folder mess
 DEST=/db_backup
 DB_HOST=127.0.0.1
 USER=atomia
@@ -42,19 +42,23 @@ mongodump --oplog -h $DB_HOST -u $USER -p $PASS -o $DEST/$DIR
 function restore {
 RESTOREDIR=""
 # if we provide an argument it will restore that backup, else it will use the last one
-if [ ! -z "$1" ] ; then
-    RESTOREDIR=$DEST/$1
-else
+if [ -z "$1" ] ; then
     RESTOREDIR=`ls -td $DEST/*/ | head -1`
+else
+    RESTOREDIR=$DEST/$1
 fi
 
-echo "----- RESTORE MONGODB from $DEST/$DIR backup -----"
+echo "----- RESTORE MONGODB from $RESTOREDIR backup -----"
 
 # we parse primary node address from mongostatus
 jq '.members[] | select(.stateStr == "PRIMARY") | .name' mongostatus | sed 's/"//g' | cut -d \: -f1 > $DB_PRIMARY
 
-# restore mongodb with oplog
-mongorestore --oplogReplay --drop -h $DB_PRIMARY -u $USER -p $PASS $RESTOREDIR
+# check if restore location exists and restore mongodb with oplog
+if [[ ! -e $RESTOREDIR ]]; then
+    echo "Location you want to restore from doesn't exist, please provide valid backup files location and try again."
+else
+    mongorestore --oplogReplay --drop -h $DB_PRIMARY -u $USER -p $PASS $RESTOREDIR
+fi
 }
 
 function status {
