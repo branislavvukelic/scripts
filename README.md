@@ -134,5 +134,5 @@ $ ./ail.sh --restore
 ```
 If you want to restore the MongoDB backup from specific date/hour (lets say 2017-07-24 at 11h) execute:: 
 ```sh
-$ ./ail.sh --restore 2017-07-42_11
+$ ./ail.sh --restore 2017-07-24_11
 ```
