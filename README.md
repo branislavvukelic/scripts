@@ -82,31 +82,37 @@ also make sure that `hostname -f` resolves properly::
 ```sh
 $ hostname mongo0.domain.tld
 ```
-create key for replication and copy created key to all replication nodes:: 
+edit mongodb.conf and add section:: 
 ```sh
-$ openssl rand -base64 756 > /etc/mongod.key
-$ chown mongodb:mongodb /etc/mongod.key && chmod 400 /etc/mongod.key
+replication:
+   oplogSizeMB: 100
+   replSetName: rs0
+```
+restart mongodb with:: 
+```sh
+service mongod restart
 ```
 initiate replication after login to primary mongodb node (mongo0):: 
 ```sh
 $ mongo
 > rs.initiate()
 > rs.add("mongo1.domain.tld")
-> rs.status()
 ```
 ensure you have user with admin rights (you can create one with):: 
 ```sh
+> use admin
 > db.createUser({user:"admin",pwd:"admin",roles:[{role:"root",db:"admin"}]});
+```
+create key for replication and copy created key to all replication nodes:: 
+```sh
+$ openssl rand -base64 756 > /etc/mongod.key
+$ chown mongodb:mongodb /etc/mongod.key && chmod 400 /etc/mongod.key
 ```
 edit mongodb.conf and add section:: 
 ```sh
 security:
   keyFile: /etc/mongod.key
   authorization: enabled
-  
-replication:
-   oplogSizeMB: 100
-   replSetName: rs0
 ```
 restart mongod service on all nodes:: 
 ```sh
