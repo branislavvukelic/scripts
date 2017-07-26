@@ -90,7 +90,7 @@ replication:
 ```
 restart mongodb with:: 
 ```sh
-service mongod restart
+$ service mongod restart
 ```
 initiate replication after login to primary mongodb node (mongo0):: 
 ```sh
