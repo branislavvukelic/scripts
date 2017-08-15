@@ -15,23 +15,15 @@ if [ -z "$1" ] ; then
 fi
 
 DIR=`date +%Y-%m-%d_%H` # keep it in this format to avoid folder mess
-# change variables according to your needs
+# Default values for variables
 # ===============
 DEST=/db_backup      # location where we want to store backups
 DB_HOST=127.0.0.1    # db host we use to pull backups, if we use script on dedicated backup host we put ip of some machine in the cluster
+DUMP_TIME=
 USER=admin           # user with backup and restore privileges
 PASS=admin           # password for that user
 # ===============
-
 MONGOSTATUS=`mktemp`
-# get current mongodb status
-mongo --host $DB_HOST -u $USER -p $PASS --authenticationDatabase admin --quiet --eval "JSON.stringify(rs.status())" > $MONGOSTATUS
-
-# install jq package if it doesn't exist
-if [ $(dpkg-query -W -f='${Status}' jq 2>/dev/null | grep -c "ok installed") -eq 0 ];
-then
-  apt-get install -y jq;
-fi
 
 function backup {
 echo "----- BACKUP MONGODB from $DB_HOST -----"
@@ -66,21 +58,63 @@ fi
 }
 
 function status {
-echo "----- MONGODB STATUS -----"
+echo "----- CURRENT MONGODB STATUS -----"
 # get mongo status
 jq '.members[] | .stateStr + ": " + .name ' $MONGOSTATUS
 }
 
 while [ "$1" != "" ]; do
     case $1 in
-        -b | --backup )         backup
-                                ;;
-        -r | --restore )        restore $2
-                                ;;
-        * )                     status
-                                exit 1
+        -a | --action )         
+		ACTION=$2
+		shift 1
+		;;
+        -u | --username )
+		USER=$2
+        shift 1
+		;;
+        -p | --password )
+		PASS=$2
+        shift 1
+		;;
+        -h | --host )
+		DB_HOST=$2
+        shift 1
+		;;
+        -t | --time )
+		DUMP_TIME=$2
+        shift 1
+		;;
+        -d | --destination )
+		DEST=$2
+        shift 1
+		;;
     esac
 shift
 done
+
+# get current mongodb status
+mongo --host $DB_HOST -u $USER -p $PASS --authenticationDatabase admin --quiet --eval "JSON.stringify(rs.status())" > $MONGOSTATUS
+
+# install jq package if it doesn't exist
+if [ $(dpkg-query -W -f='${Status}' jq 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+    read -p "jq is required to run this script. Do you want to install it now? " yn
+    case $yn in
+        [Yy]* ) apt-get install -y jq;;
+        [Nn]* ) exit;;
+    esac
+fi
+
+if [[ $ACTION == "backup" ]] ; then
+    backup
+elif [[ $ACTION == "restore" ]] ; then
+    restore $DUMP_TIME
+elif [[ $ACTION == "status" ]] ; then
+    status
+else
+	echo "You have provided wrong ACTION!!!"
+	echo "ACTION: " $ACTION
+fi
 
 rm -f "$MONGOSTATUS"
