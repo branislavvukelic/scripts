@@ -1,6 +1,7 @@
 #!/bin/sh
 
-echo $1 > parms.txt
+echo $* > parms.txt
+echo $1 >> parms.txt
 echo $2 >> parms.txt
 echo $3 >> parms.txt
 echo $4 >> parms.txt
