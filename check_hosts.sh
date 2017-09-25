@@ -23,15 +23,17 @@ for record in $( grep "${LOCAL_DOMAIN}" /etc/hosts | awk '{print $ 1}'); do
 	EXIST=''
 	REACHABLE=''
 
+	sleep 1
 	if ping -c 1 ${record} &>/dev/null; then
 		EXIST="✓"
 	else
 		EXIST="✗"
 	fi
 
-	if netcat -z ${record} 22 2>/dev/null; then
+	sleep 1
+	if netcat -w 3 -z ${record} 22 2>/dev/null; then
 		REACHABLE="ssh"
-	elif netcat -z ${record} 3389 2>/dev/null; then
+	elif netcat -w 3 -z ${record} 3389 2>/dev/null; then
 		REACHABLE="rdp"
 	else
 		REACHABLE="✗"
