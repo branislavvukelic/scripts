@@ -12,9 +12,9 @@ else
 fi
 
 # print header
-printf '%-20s %-20s %-15s %-15s\n' "--------------------" "--------------------" "---------------" "---------------"
-printf '%-20s %-20s %-15s %-15s\n' "HOSTNAME" "IP" "Ping" "SSH"
-printf '%-20s %-20s %-15s %-15s\n' "--------------------" "--------------------" "---------------" "---------------"
+printf '%-30s %-20s %-15s %-15s\n' "--------------------" "--------------------" "---------------" "---------------"
+printf '%-30s %-20s %-15s %-15s\n' "HOSTNAME" "IP" "Ping" "SSH"
+printf '%-30s %-20s %-15s %-15s\n' "--------------------" "--------------------" "---------------" "---------------"
 
 # go through hosts file and check availability
 for record in $( grep "${LOCAL_DOMAIN}" /etc/hosts | awk '{print $ 1}'); do
@@ -30,12 +30,14 @@ for record in $( grep "${LOCAL_DOMAIN}" /etc/hosts | awk '{print $ 1}'); do
 	fi
 
 	if netcat -z ${record} 22 2>/dev/null; then
-		REACHABLE="✓"
+		REACHABLE="ssh"
+	elif netcat -z ${record} 3389 2>/dev/null; then
+		REACHABLE="rdp"
 	else
 		REACHABLE="✗"
 	fi
 
-	printf '%-20s %-20s %-17s %-15s\n' $HOSTNAME $record $EXIST $REACHABLE
+	printf '%-30s %-20s %-17s %-15s\n' $HOSTNAME $record $EXIST $REACHABLE
 done
-printf '%-20s %-20s %-15s %-15s\n' "--------------------" "--------------------" "---------------" "---------------"
+printf '%-30s %-20s %-15s %-15s\n' "--------------------" "--------------------" "---------------" "---------------"
 exit 0
